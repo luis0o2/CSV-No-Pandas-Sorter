@@ -1,12 +1,10 @@
 import csv
-import matplotlib.pyplot as plt
-
 from datetime import datetime
 
 def UserDataParsing(file, option, header, data):
 
 
-    if option == 1:
+    if option == '1':
         data_by_date = {}
 
         for col in file:
@@ -23,7 +21,7 @@ def UserDataParsing(file, option, header, data):
         sorted_data_by_date = dict(sorted(data_by_date.items(), key=lambda x: datetime.strptime(x[0], '%m/%d/%Y')))
         return sorted_data_by_date
 
-    elif option == 2:
+    elif option == '2':
         data_by_set = {}
         for col in file:
             setData = col[header]
@@ -35,33 +33,82 @@ def UserDataParsing(file, option, header, data):
                 data_by_set[setData] = data_
         return data_by_set
 
+    elif option == '3':
+        datas_by_set = {}
+        header2 = str(input('Enter Header 2: '))
+        for col in file:
+            data1 = col[header]
+            data2 = col[header2]
+            data3 = int(col[data])
+
+            if data1 not in datas_by_set:
+                datas_by_set[data1] = {}
+
+            if data2 in datas_by_set[data1]:
+                datas_by_set[data1][data2] += data3
+            else:
+                datas_by_set[data1][data2] = data3
+
+        return datas_by_set
+
+    elif option == '4':
+        data_sum = {}
+        data_count = {}
+
+        for col in file:
+            data1 = col[header]
+            data2 = int(col[data])
+
+            if data1 not in data_sum:
+                data_sum[data1] = 0
+                data_count[data1] = 0
+
+            data_sum[data1] += data2
+            data_count[data1] += 1
+
+        average = {data1: data_sum[data1] / data_count[data1] for data1 in data_sum}
+        return average
+
+
+
+
+
+
+
+
 
 
 def UserOptions():
     print('1: Return Accumulated Data By Date')
-    print('2: Return Accumulated Data By Set')
-    print('3: Sort Data By Set and Sum = ex. Country and Sum of Sales/Data')
-    print('4: Sort Data By Sets - ex. Country and Date and Sum of Data related to Country')
+    print('2: Return Accumulated Data(1) By Set')
+    print('3: Return Accumulated Datas(2) By Set')
+    print('4: Return Average of Data By Set')
+    print('5: Quit')
 
 
-with open('report2.csv', 'r', encoding='utf-8-sig') as filename:
+with open('report.csv', 'r', encoding='utf-8-sig') as filename:
     file = csv.DictReader(filename)
+    headers = file.fieldnames
     data = list(file)
 
-    headers = file.fieldnames
-
-    print(f'Current Headers: {headers}')
-
-    CountrySales = UserDataParsing(data, 2, 'Marketplace', 'Sold')
-
-    plt.bar(CountrySales.keys(), CountrySales.values(), 1.0, color='b')
-    plt.show()
-
-    TimeSales = UserDataParsing(data, 1, 'Date', 'Sold')
 
 
-    plt.bar(TimeSales.keys(), TimeSales.values(), 1.0, color='g')
-    plt.show()
+
+
+    while True:
+        UserOptions()
+        choice = input('Choose one of these options: ')
+        if choice == '5':
+            print("Exiting program.")
+            break
+        print('Current Headers:')
+        for header in headers:
+            print(header)
+        data1 = input('Give me a header(Date, data, etc): ')
+        data2 = input('Give me data: ')
+
+        show = UserDataParsing(data, choice, f'{data1}', f'{data2}')
+        print(show)
 
 
 
