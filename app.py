@@ -1,4 +1,6 @@
 import csv
+import matplotlib.pyplot as plt
+
 from datetime import datetime
 
 def UserDataParsing(file, option, header, data):
@@ -6,6 +8,7 @@ def UserDataParsing(file, option, header, data):
 
     if option == 1:
         data_by_date = {}
+
         for col in file:
             date = datetime.strptime(col[f'{header}'], '%m/%d/%Y')
 
@@ -16,7 +19,9 @@ def UserDataParsing(file, option, header, data):
                 data_by_date[date_str] += data_
             else:
                 data_by_date[date_str] = data_
-        print("Accumulated Data By Date:", data_by_date)
+
+        sorted_data_by_date = dict(sorted(data_by_date.items(), key=lambda x: datetime.strptime(x[0], '%m/%d/%Y')))
+        return sorted_data_by_date
 
     elif option == 2:
         data_by_set = {}
@@ -28,7 +33,7 @@ def UserDataParsing(file, option, header, data):
                 data_by_set[setData] += data_
             else:
                 data_by_set[setData] = data_
-        print("Accumulated Data By Set:", data_by_set)
+        return data_by_set
 
 
 
@@ -41,28 +46,22 @@ def UserOptions():
 
 with open('report2.csv', 'r', encoding='utf-8-sig') as filename:
     file = csv.DictReader(filename)
+    data = list(file)
 
     headers = file.fieldnames
 
     print(f'Current Headers: {headers}')
 
-    UserDataParsing(file, 2, 'Marketplace', 'Sold')
+    CountrySales = UserDataParsing(data, 2, 'Marketplace', 'Sold')
+
+    plt.bar(CountrySales.keys(), CountrySales.values(), 1.0, color='b')
+    plt.show()
+
+    TimeSales = UserDataParsing(data, 1, 'Date', 'Sold')
+
+
+    plt.bar(TimeSales.keys(), TimeSales.values(), 1.0, color='g')
+    plt.show()
 
 
 
-
-    """""
-    for col in file:
-        try:
-            date = datetime.strptime(col['Dates Sold'], '%m/%d/%Y')
-            dates.append(date)
-        except ValueError as e:
-            print(f'Error parsing date in row {col}')
-            print(e)
-        except KeyError as e:
-            print(f'Mssing column in row: {col}')
-            print(e)
-
-
-    print('Dates: ', dates)
-    """""
